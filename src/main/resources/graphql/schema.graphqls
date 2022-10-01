@@ -4,6 +4,13 @@ type Query {
 	userAll: [User]
 	findUserById(id: String!): User
 	test: String
+	test1: String
+	test2: String
+	test3: String
+	test4: [Product]
+	test5: Product
+	test6: Product
+	test7: [Product]
 }
 
 type Mutation {
@@ -13,6 +20,12 @@ type Mutation {
 	signIn(username: String!, password: String!): String!
 	signUp(username: String!, password: String!, email: String!): String!
 	test(input: UserInput): Int
+}
+
+type Product {
+	num: ID!
+	title: String
+	content: String
 }
 
 type User {
