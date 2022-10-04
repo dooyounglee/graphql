@@ -1,9 +1,7 @@
-package com.doo.graphql.dao;
+package com.doo.graphql.test;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import com.doo.graphql.vo.Product;
 
 @Repository
 public interface TestDao extends JpaRepository<Product, Long>{

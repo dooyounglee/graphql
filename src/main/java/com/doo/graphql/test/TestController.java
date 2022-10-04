@@ -1,9 +1,11 @@
-package com.doo.graphql.controller;
+package com.doo.graphql.test;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.Arguments;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.http.HttpStatus;
@@ -12,8 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import com.doo.graphql.dao.TestDao;
-import com.doo.graphql.vo.Product;
+import com.doo.graphql.vo.UserDto;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -93,8 +94,17 @@ public class TestController {
 	 */
 	@QueryMapping(value = "test7")
 	public Flux<Product> test7() {
+		System.out.println("test7");
 		Product product = new Product(1L, "title", "content1");
 		Mono<Product> mProduct = Mono.just(product);
 		return Flux.just(product, product);
+	}
+	
+	@SchemaMapping(typeName = "Query", value = "test8")
+	public String test8(@Arguments TestDto testDto, @Argument String param1, @Argument String param2) {
+		System.out.println("param1: " + param1);
+		System.out.println("param2: " + param2);
+		System.out.println("testDto: " + testDto);
+		return "111";
 	}
 }
