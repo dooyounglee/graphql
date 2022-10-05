@@ -2,9 +2,7 @@ package com.doo.graphql.vo;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -13,13 +11,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 //import org.springframework.security.core.GrantedAuthority;
@@ -50,20 +45,27 @@ public class User implements UserDetails {
 	private String avatar;
 	
 	private String password;
-	//private List<Note> notes;
-	//private List<Note> favorites;
+	
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "noteId")
+	private List<Note> notes;
+	
+	@OneToMany(fetch = FetchType.EAGER)
+	@JoinColumn(name = "favoritesId")
+	private List<Note> favorites;
 
 	
 	
 	
 	/* spring security */
-	@ElementCollection(fetch = FetchType.EAGER)
+	@ElementCollection
 	@Builder.Default
 	private List<String> roles = new ArrayList<>();
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return this.roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+		//return this.roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+		return List.of();
 	}
 	
 //	@JsonProperty(access = Access.WRITE_ONLY)
