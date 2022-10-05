@@ -9,12 +9,13 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.graphql.server.WebGraphQlRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+
+import com.doo.graphql.vo.User;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -41,9 +42,9 @@ public class JwtTokenProvider {
 		log.info("[init] JwtTokenProvider 내 secretKey 초기화 완료");
 	}
 	
-	public String createToken(String userUid, List<String> roles) {
+	public String createToken(String email, List<String> roles) {
 		log.info("[createToken] 토큰 생성 시작");
-		Claims claims = Jwts.claims().setSubject(userUid);
+		Claims claims = Jwts.claims().setSubject(email);
 		claims.put("roles", roles);
 		Date now = new Date();
 		
@@ -62,7 +63,7 @@ public class JwtTokenProvider {
 	public Authentication getAuthentication(String token) {
 		log.info("[getAuthentication] 토큰 인증 정보 조회 시작");
 		UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUsername(token));
-		log.info("[getAuthentication] 토큰 인증 정보 조회 완료, UserDetails Username : {}", userDetails.getUsername());
+		log.info("[getAuthentication] 토큰 인증 정보 조회 완료, UserDetails Username : {}", ((User)userDetails).getEmail());
 		return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
 	}
 	
@@ -75,7 +76,7 @@ public class JwtTokenProvider {
 	
 	public String resolveToken(HttpServletRequest servletRequest) {
 		log.info("[resolveToken] HTTP 헤더에서 Token 값 추출");
-		return servletRequest.getHeader("X-AUTH-TOKEN");
+		return servletRequest.getHeader("authorization");
 	}
 	
 	public boolean validateToken(String token) {
