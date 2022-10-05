@@ -1,17 +1,19 @@
 package com.doo.graphql.web;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.Arguments;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 
 import com.doo.graphql.dao.UserRepository;
 import com.doo.graphql.security.JwtTokenProvider;
 import com.doo.graphql.util.MD5Util;
-import com.doo.graphql.vo.Note;
 import com.doo.graphql.vo.User;
 import com.doo.graphql.vo.UserDto;
 
@@ -25,16 +27,29 @@ public class UserController{
 
 	private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 	private final UserRepository userRepository;
-	private JwtTokenProvider jwtTokenProvider;
+	private final JwtTokenProvider jwtTokenProvider;
 	
 	@SchemaMapping(typeName = "Query", value = "user")
-	public User user(@Argument String username) {
-		return userRepository.findByUsername(username);
+	public User user(@Argument String email) {
+		return userRepository.findByEmail(email).get();
 	}
 	
 	@SchemaMapping(typeName = "Query", value = "users")
 	public List<User> users(@Argument Long id) {
 		return userRepository.findAll();
+	}
+	
+	@SchemaMapping(typeName = "Query", value = "me")
+	public User me() {
+		log.debug("com.doo.graphql.web.UserController.me");
+		
+		if (!SecurityContextHolder.getContext()
+			.getAuthentication()
+			.getPrincipal().equals("anonymousUser")) {
+		    UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		    return (User)user;
+        }
+		return null;
 	}
 	
 	@SchemaMapping(typeName = "Mutation", value = "signUp")
@@ -60,17 +75,17 @@ public class UserController{
 		log.debug("com.doo.graphql.web.UserController.signUp.userDto : {}", userDto);
 		
 		String email = userDto.getEmail().trim().toLowerCase();
-		User user = userRepository.findByEmail(email);
-		if (user != null) {
+		Optional<User> user = userRepository.findByEmail(email);
+		if (user == null) {
 			throw new Exception();
 		}
 		
-		boolean valid = encoder.matches(userDto.getPassword(), user.getPassword());
+		boolean valid = encoder.matches(userDto.getPassword(), user.get().getPassword());
 		if (!valid) {
 			throw new Exception();
 		}
 		
-		return jwtTokenProvider.createToken(email, user.getRoles());
+		return jwtTokenProvider.createToken(email, user.get().getRoles());
 	}
 	
 	private String gravatar(String email) {
