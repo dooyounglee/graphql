@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -30,18 +31,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		.csrf().disable()
 		.sessionManagement()
 		.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-		.and()
-		.authorizeRequests()
-		.antMatchers("/","/**").permitAll()
-		.antMatchers(HttpMethod.GET, "/product/**").permitAll()
-		.antMatchers("**exception**").permitAll()
-		.anyRequest().hasRole("ADMIN")
-		.and()
-		//.exceptionHandling().accessDeniedHandler(new Exception())
-		//.and()
-		//.exceptionHandling().authenticationEntryPoint()
-		//.and()
-		//.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+		.and().authorizeRequests()
+			.antMatchers("/","/**").permitAll()
+			.antMatchers(HttpMethod.GET, "/product/**").permitAll()
+			.antMatchers("**exception**").permitAll()
+			.anyRequest().hasRole("ADMIN")
+		.and().exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())
+		.and().exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+		.and().addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
 		;
 	}
 	
