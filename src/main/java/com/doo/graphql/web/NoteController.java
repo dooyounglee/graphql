@@ -13,7 +13,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 
+import com.doo.graphql.dao.FavoriteRepository;
 import com.doo.graphql.dao.NoteRepository;
+import com.doo.graphql.vo.Favorite;
 import com.doo.graphql.vo.Note;
 import com.doo.graphql.vo.NoteDto;
 import com.doo.graphql.vo.NoteFeed;
@@ -27,6 +29,7 @@ public class NoteController {
 	
 	final static Logger logger = LoggerFactory.getLogger(NoteController.class);
 	private final NoteRepository noteRepository;
+	private final FavoriteRepository favoriteRepository;
 
 	@SchemaMapping(typeName = "Query", value = "notes")
 	public List<Note> notes() {
@@ -130,6 +133,42 @@ public class NoteController {
 			return false;
 		}
 		return true;
+	}
+	
+	@SchemaMapping(typeName = "Mutation", value = "toggleFavorite")
+	public void toggleFavorite(@Arguments NoteDto noteDto) throws Exception {
+		logger.debug("com.doo.graphql.web.NoteController.deleteNote.noteDto : {}", noteDto);
 		
+		// user
+		User user = null;
+		if (!SecurityContextHolder.getContext()
+			.getAuthentication()
+			.getPrincipal().equals("anonymousUser")) {
+		    user = (User) (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        }
+		if (user == null) throw new Exception();
+
+		List<Favorite> favorites = favoriteRepository.findByNoteId(noteDto.getId());
+		int index = -1;
+		for (int i=0; i<favorites.size(); i++) {
+			if (favorites.get(i).getUser().getId() == user.getId()) {
+				index = i;
+				break;
+			}
+		}
+		
+		Note note = noteRepository.findById(noteDto.getId()).get();
+		if (index > -1) {
+			note.setFavoriteCount(note.getFavoriteCount() - 1);
+			favoriteRepository.deleteByNoteIdAndUserId(noteDto.getId(), user.getId());
+		} else {
+			note.setFavoriteCount(note.getFavoriteCount() + 1);
+			
+			Favorite favorite = new Favorite();
+			favorite.setNote(note);
+			favorite.setUser(user);
+			favoriteRepository.save(favorite);
+		}
+		noteRepository.save(note);
 	}
 }

@@ -1,5 +1,6 @@
 package com.doo.graphql.web;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +17,7 @@ import com.doo.graphql.dao.NoteRepository;
 import com.doo.graphql.dao.UserRepository;
 import com.doo.graphql.security.JwtTokenProvider;
 import com.doo.graphql.util.MD5Util;
+import com.doo.graphql.vo.Favorite;
 import com.doo.graphql.vo.Note;
 import com.doo.graphql.vo.User;
 import com.doo.graphql.vo.UserDto;
@@ -58,8 +60,13 @@ public class UserController{
 		    List<Note> notes = noteRepository.findByAuthorId(user.getId());
 		    user.setNotes(notes);
 		    
-		    List<Note> favorites = favoriteRepository.findByUserId(user.getId());
-		    user.setFavorites(favorites);
+		    List<Favorite> favorites = favoriteRepository.findByUserId(user.getId());
+		    List<Note> fnotes = new ArrayList<Note>();
+		    for (int i=0;i<favorites.size();i++) {
+		    	fnotes.add(favorites.get(i).getNote());
+		    }
+		    System.out.println(fnotes);
+		    user.setFavorites(fnotes);
         }
 		return user;
 	}
