@@ -11,15 +11,15 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true) // 부모 클래스에 필드를 포함하는 역할
+@EqualsAndHashCode(callSuper = true) // 부모 클래스에 필드를 포함하는 역할
 @Entity
 @Table(name = "note")
 public class Note extends BaseEntity {
@@ -39,4 +39,6 @@ public class Note extends BaseEntity {
 	@OneToMany
 	@JoinColumn(name = "favoritedbyId")
 	private List<User> favoritedBy;
+	
+	
 }

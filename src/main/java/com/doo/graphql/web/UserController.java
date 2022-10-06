@@ -11,9 +11,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 
+import com.doo.graphql.dao.NoteRepository;
 import com.doo.graphql.dao.UserRepository;
 import com.doo.graphql.security.JwtTokenProvider;
 import com.doo.graphql.util.MD5Util;
+import com.doo.graphql.vo.Note;
 import com.doo.graphql.vo.User;
 import com.doo.graphql.vo.UserDto;
 
@@ -27,6 +29,7 @@ public class UserController{
 
 	private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 	private final UserRepository userRepository;
+	private final NoteRepository noteRepository;
 	private final JwtTokenProvider jwtTokenProvider;
 	
 	@SchemaMapping(typeName = "Query", value = "user")
@@ -43,13 +46,17 @@ public class UserController{
 	public User me() {
 		log.debug("com.doo.graphql.web.UserController.me");
 		
+		User user = null;
 		if (!SecurityContextHolder.getContext()
 			.getAuthentication()
 			.getPrincipal().equals("anonymousUser")) {
-		    UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		    return (User)user;
+		    UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		    
+		    user = (User)userDetails;
+		    List<Note> favorites = noteRepository.findByAuthorId(user.getId());
+		    user.setFavorites(favorites);
         }
-		return null;
+		return user;
 	}
 	
 	@SchemaMapping(typeName = "Mutation", value = "signUp")
