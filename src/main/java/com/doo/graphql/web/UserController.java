@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 
+import com.doo.graphql.dao.FavoriteRepository;
 import com.doo.graphql.dao.NoteRepository;
 import com.doo.graphql.dao.UserRepository;
 import com.doo.graphql.security.JwtTokenProvider;
@@ -30,6 +31,7 @@ public class UserController{
 	private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 	private final UserRepository userRepository;
 	private final NoteRepository noteRepository;
+	private final FavoriteRepository favoriteRepository;
 	private final JwtTokenProvider jwtTokenProvider;
 	
 	@SchemaMapping(typeName = "Query", value = "user")
@@ -53,7 +55,10 @@ public class UserController{
 		    UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		    
 		    user = (User)userDetails;
-		    List<Note> favorites = noteRepository.findByAuthorId(user.getId());
+		    List<Note> notes = noteRepository.findByAuthorId(user.getId());
+		    user.setNotes(notes);
+		    
+		    List<Note> favorites = favoriteRepository.findByUserId(user.getId());
 		    user.setFavorites(favorites);
         }
 		return user;

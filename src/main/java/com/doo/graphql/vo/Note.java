@@ -10,6 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -36,8 +37,7 @@ public class Note extends BaseEntity {
 	
 	private int favoriteCount;
 	
-	@OneToMany
-	@JoinColumn(name = "favoritedbyId")
+	@Transient
 	private List<User> favoritedBy;
 	
 	
