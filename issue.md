@@ -12,4 +12,9 @@
 |          |암튼 signIn 했고, me(내정보 조회), jwt 이제 75퍼 이해한듯|
 |          |session에서 가져오듯이, SecurityContextHolder에서 jwt에서 담았던 user 정보를 빼올수 있음. 어디서든. ~~session인줄~~|
 |          |내일은 newNote, updateNote, deleteNote, addFavorite, deleteFavorite 다 할 수 있겠찌?|
+|2022-10-07|아니.. GraphQL이.. 객체 안에 객체 넣어서 조회 하는 이점이 있는데.. 이걸 RDB로 하니까 말이 안돼...|
+|          |방법이 있나... 있는거 같기도 하고... @OneToMany, @ManyToOne 잘만 이용하면 될꺼 같기도 하고..|
+|          |GraphQL이.. noSql 맞춤으로 나온거 같기도 하다는 느낌이 들어..|
+|          |책을 좀 찾아보자 GraphQL인데 RDB로 연동해서 쓰는게 있는지..|
+|          |그리고 toggleFavorite 할때 화면이 안바뀌거나 로그에 예외 발생하는거 수정해봐야 겠어 내일이 마지막이다.|
 |          ||
