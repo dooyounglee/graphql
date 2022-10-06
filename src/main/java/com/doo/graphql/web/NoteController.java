@@ -105,4 +105,31 @@ public class NoteController {
 		
 		return noteRepository.save(oNote.get());
 	}
+	
+	@SchemaMapping(typeName = "Mutation", value = "deleteNote")
+	public Boolean deleteNote(@Arguments NoteDto noteDto) throws Exception {
+		logger.debug("com.doo.graphql.web.NoteController.deleteNote.noteDto : {}", noteDto);
+		
+		// user
+		User user = null;
+		if (!SecurityContextHolder.getContext()
+			.getAuthentication()
+			.getPrincipal().equals("anonymousUser")) {
+		    user = (User) (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        }
+		if (user == null) throw new Exception();
+		
+		Optional<Note> oNote = noteRepository.findById(noteDto.getId());
+		if (oNote.isPresent() && oNote.get().getAuthor().getId() != user.getId()) {
+			throw new Exception();
+		}
+		
+		try {
+			noteRepository.deleteById(oNote.get().getId());
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+		
+	}
 }
